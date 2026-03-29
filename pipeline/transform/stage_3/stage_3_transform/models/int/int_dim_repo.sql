@@ -1,0 +1,17 @@
+{{ config(materialized = "incremental") }}
+
+SELECT
+    {{
+        dbt_utils.generate_surrogate_key([
+            'repo.id',
+            'repo.name',
+            'repo.url'
+    ])
+    }} as surrogate_id,
+    repo.id AS id,
+    repo.name AS name,
+    repo.url as url,
+FROM {{ ref("raw_gh_events") }}
+WHERE repo.id IS NOT NULL
+
+
