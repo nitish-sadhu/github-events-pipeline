@@ -1,11 +1,11 @@
-{{ config(materialized = "incremental") }}
+{{ config(materialized = "table") }}
 
 SELECT
     {{
         dbt_utils.generate_surrogate_key([
             'org.id',
             'org.login',
-            'org.display_login',
+            'org.gravatar_id',
             'org.url',
             'org.avatar_url'
     ])

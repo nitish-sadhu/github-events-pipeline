@@ -1,4 +1,4 @@
-{{ config(materialized = "incremental") }}
+{{ config(materialized = "table") }}
 
 SELECT
     {{
@@ -10,7 +10,7 @@ SELECT
     }} as surrogate_id,
     repo.id AS id,
     repo.name AS name,
-    repo.url as url,
+    repo.url as url
 FROM {{ ref("raw_gh_events") }}
 WHERE repo.id IS NOT NULL
 
