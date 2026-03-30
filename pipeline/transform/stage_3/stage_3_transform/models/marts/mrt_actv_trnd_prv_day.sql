@@ -13,4 +13,3 @@ SELECT
     counts
 FROM counts_per_day
 ORDER BY 1 DESC
-LIMIT 2

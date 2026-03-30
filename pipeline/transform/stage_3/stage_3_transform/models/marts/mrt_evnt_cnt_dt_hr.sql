@@ -1,6 +1,9 @@
 {{ config(materialized = "incremental",
         unique_key = ["created_date", "created_hour", "event_type"],
-        partition_by = created_date) }}
+        partition_by = {
+                        "field": "created_date",
+                        "data_type": "date"
+} )}}
 
 SELECT
     created_date,
