@@ -27,6 +27,7 @@ cd /Users/krishnasadhu/github-events-analytics/pipeline/transform/stage_3/
 source /Users/krishnasadhu/github-events-analytics/pipeline/transform/stage_3/env/bin/activate
 cd /Users/krishnasadhu/github-events-analytics/pipeline/transform/stage_3/stage_3_transform
 dbt run
+dbt test
 deactivate
 
 echo "___RUN_SUCCESSFUL___: date: $CURR_DATE, hour: $PREV_DATE"

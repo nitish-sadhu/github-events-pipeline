@@ -11,8 +11,8 @@ importlib.reload(ctp)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-START_DATE = "2012-01-01"
-END_DATE = "2012-12-31"
+START_DATE = "2013-01-01"
+END_DATE = "2013-12-31"
 
 
 def backfill(date_range) -> None:
