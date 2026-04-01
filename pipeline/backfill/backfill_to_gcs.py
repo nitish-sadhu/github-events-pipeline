@@ -3,16 +3,16 @@ import logging
 from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 import importlib
-from extract.extract_to_gcs import extract_to_gcs
-import transform.stage_1.convert_to_parquet as ctp
+from pipeline.extract.extract_to_gcs import extract_to_gcs
+import pipeline.transform.stage_1.convert_to_parquet as ctp
 
 importlib.reload(ctp)
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-START_DATE = "2011-02-12"
-END_DATE = "2011-02-28"
+START_DATE = "2012-01-01"
+END_DATE = "2012-12-31"
 
 
 def backfill(date_range) -> None:
@@ -39,8 +39,7 @@ def backfill(date_range) -> None:
 
 def worker(task: list) -> None:
     date, hour = task
-    logger.info(f"__________{task}___________")
-    if True:
+    if False:
         #logger.info(f"__________{date}, {hour}___________")
         ctp.convert_to_parquet(date, hour)
     else:

@@ -22,7 +22,6 @@ def extract_to_gcs(date, hour):
     if not storage_client.lookup_bucket(RAW_JSON_BUCKET):
         logger.info("____CREATING_BUCKET____")
         create_bucket(storage_client, RAW_JSON_BUCKET)
-        bucket = storage_client.get_bucket(RAW_JSON_BUCKET)
 
     bucket = storage_client.get_bucket(RAW_JSON_BUCKET)
 
