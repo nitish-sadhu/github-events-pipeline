@@ -1,5 +1,5 @@
 from params.params import RAW_JSON_BUCKET
-from utilities.utilities import create_storage_client, extract_from_date
+from utilities.utilities import create_storage_client, extract_from_date, create_bucket, get_args
 
 import logging
 import pandas as pd
@@ -13,11 +13,19 @@ logger = logging.getLogger(__name__)
 
 
 def extract_to_gcs(date, hour):
-
+    logger.info("____EXTRACT_STARTED____")
     year, month, day = extract_from_date(date)
 
     storage_client = create_storage_client()
+    logger.info(f"____{storage_client}____")
+
+    if not storage_client.lookup_bucket(RAW_JSON_BUCKET):
+        logger.info("____CREATING_BUCKET____")
+        create_bucket(storage_client, RAW_JSON_BUCKET)
+        bucket = storage_client.get_bucket(RAW_JSON_BUCKET)
+
     bucket = storage_client.get_bucket(RAW_JSON_BUCKET)
+
     blob_path = f"{year}/{month}/{day}/{hour}.json.gz"
     blob = bucket.blob(blob_path)
 
@@ -48,8 +56,14 @@ def extract_to_gcs(date, hour):
     return None
 
 if __name__ == "__main__":
-    start_date = "2012-03-07"
-    end_date = "2012-12-31"
+
+    date, hour = get_args()
+    logger.info(f"date: {date}, hour:{hour}")
+    extract_to_gcs(date, hour)
+
+    """
+    start_date = "2011-02-12"
+    end_date = "2011-02-28"
     date_range = pd.date_range(start_date, end_date)
 
     for date in date_range:
@@ -60,3 +74,4 @@ if __name__ == "__main__":
             logger.info("==================================")
             extract_to_gcs(date, hour)
             #logger.info("==================================")
+    """

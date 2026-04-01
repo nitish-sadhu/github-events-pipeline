@@ -11,8 +11,8 @@ importlib.reload(ctp)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-START_DATE = "2011-03-01"
-END_DATE = "2012-12-31"
+START_DATE = "2011-02-12"
+END_DATE = "2011-02-28"
 
 
 def backfill(date_range) -> None:
@@ -39,7 +39,7 @@ def backfill(date_range) -> None:
 
 def worker(task: list) -> None:
     date, hour = task
-    #logger.info(f"__________{task}___________")
+    logger.info(f"__________{task}___________")
     if True:
         #logger.info(f"__________{date}, {hour}___________")
         ctp.convert_to_parquet(date, hour)

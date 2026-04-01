@@ -1,7 +1,8 @@
 #!/Users/krishnasadhu/github-events-analytics/.venv/bin/python
 from utilities.utilities import create_bigquery_client
-from params.params import PROJECT, DATASET
+from params.params import PROJECT, DATASET, PROCESSED_PARQUET_BUCKET
 import logging
+
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -13,16 +14,16 @@ def create_ext_table() -> None:
     table_id = f"{PROJECT}.{DATASET}.raw_gh_events_ext"
 
     query = f"""
-            CREATE OR REPLACE EXTERNAL TABLE `{table_id}`
+            CREATE EXTERNAL TABLE IF NOT EXISTS `{table_id}`
             OPTIONS (
                 FORMAT = 'PARQUET',
-                URIS = ['gs://krishnadata-gda-processed/*.parquet']
+                URIS = ['gs://{PROCESSED_PARQUET_BUCKET}/*.parquet']
             )
     """
 
     logger.info("___TABLE_CREATION_STARTS___")
 
-    job = client.query(query)
+    job = client.query(query, location="asia-south1")
     job.result()
 
     try:

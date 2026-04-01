@@ -2,7 +2,7 @@
 
 SELECT
     *
-FROM {{ source('gh_archives', 'raw_gh_events_ext') }}
+FROM {{ source('gh_events', 'raw_gh_events_ext') }}
 WHERE id IS NOT NULL
 {% if is_incremental() %}
     AND created_at >= (SELECT TIMESTAMP_SUB(MAX(created_at), INTERVAL 1 HOUR) FROM {{ this }})

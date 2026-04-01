@@ -5,6 +5,29 @@ from google.cloud import storage, bigquery
 from datetime import datetime
 import json
 import hashlib
+import logging
+import argparse
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+def create_bucket(client, bucket):
+    client.create_bucket(bucket)
+
+    return None
+
+def get_args():
+    parser = argparse.ArgumentParser()
+
+    parser.add_argument("--date", required=True)
+    parser.add_argument("--hour", required=True)
+
+    args = parser.parse_args()
+
+    date = args.date
+    hour = args.hour
+
+    return date, hour
 
 def extract_from_date(date: str):
     year = pd.Timestamp(date).strftime("%Y")
@@ -15,10 +38,13 @@ def extract_from_date(date: str):
 
 
 def create_bigquery_client():
-    return bigquery.Client()
+    return bigquery.Client(project="github-events-analytics")
 
 def create_storage_client():
-    return storage.Client()
+    #logger.info("___CREATING_STORAGE_CLIENT___")
+    client =  storage.Client(project="github-events-analytics")
+    #logger.info(f"___{client}___")
+    return client
 
 def create_surrogate_id(record):
     record_str = json.dumps(record, sort_keys=True)

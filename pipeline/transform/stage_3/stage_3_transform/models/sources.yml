@@ -1,8 +1,8 @@
 version: 2
 
 sources:
-  - name: gh_archives
-    database: github-dev-analytics # gcp project
-    schema: gh_archives
+  - name: gh_events
+    database: github-events-analytics # gcp project
+    schema: gh_events
     tables:
       - name: raw_gh_events_ext

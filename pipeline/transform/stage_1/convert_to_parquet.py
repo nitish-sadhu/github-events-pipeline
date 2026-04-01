@@ -1,4 +1,5 @@
-from utilities.utilities import create_storage_client, extract_from_date, get_pa_schema, normalize_record
+from utilities.utilities import create_storage_client, extract_from_date, get_pa_schema, normalize_record, \
+    create_bucket, get_args
 from params.params import RAW_JSON_BUCKET, PROCESSED_PARQUET_BUCKET
 
 import gzip
@@ -14,6 +15,10 @@ logger = logging.getLogger(__name__)
 
 
 def get_blob(client, bucket, blob_path):
+
+    if not client.lookup_bucket(bucket):
+        create_bucket(client, bucket)
+
     bucket = client.get_bucket(bucket)
     blob = bucket.blob(blob_path)
 
@@ -22,7 +27,7 @@ def get_blob(client, bucket, blob_path):
 def is_empty_record(record):
     return all(field is None for field in record.values())
 
-def convert_to_parquet(date, hour, batch_size = 5000):
+def convert_to_parquet(client, date, hour, batch_size = 5000):
     writer = None
     batch = []
     year, month, day = extract_from_date(date)
@@ -31,7 +36,6 @@ def convert_to_parquet(date, hour, batch_size = 5000):
 
     schema = get_pa_schema()
 
-    client = create_storage_client()
     src_blob = get_blob(client, RAW_JSON_BUCKET, src_blob_path)
     tgt_blob = get_blob(client, PROCESSED_PARQUET_BUCKET, tgt_blob_path)
 
@@ -86,9 +90,17 @@ def convert_to_parquet(date, hour, batch_size = 5000):
 
 if __name__ == "__main__":
 
-    date_range = pd.date_range("2012-03-11", "2012-03-31", freq="D")
+    date, hour = get_args()
+
+    client = create_storage_client()
+
+    convert_to_parquet(client, date, hour)
+
+    """
+    date_range = pd.date_range("2011-02-12", "2011-02-28", freq="D")
 
     for date in date_range:
         formatted_date = str(date)
         for hour in range(24):
-            convert_to_parquet(formatted_date, hour)
+            convert_to_parquet(client, formatted_date, hour)
+    """
