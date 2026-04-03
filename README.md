@@ -30,6 +30,9 @@ Ingestion (Python) -> Transformation -> Parquet -> BigQuery -> dbt -> Dashboard
 - Dimensional data modelling using dbt
 - Automated pipeline execution using shell scripts and cron.
 
+## Architecture
+![Architectrue Diagram](Architecture.png)
+
 ## How to Run
 To run the pipeline use the following command.
         `zsh ./master.sh`
