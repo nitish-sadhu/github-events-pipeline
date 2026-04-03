@@ -11,7 +11,7 @@ logger = logging.getLogger(__name__)
 def create_ext_table() -> None:
     client = create_bigquery_client()
 
-    table_id = f"{PROJECT}.{DATASET}.raw_gh_events_ext"
+    table_id = f"{PROJECT}.{DATASET}._"
 
     query = f"""
             CREATE EXTERNAL TABLE IF NOT EXISTS `{table_id}`
