@@ -1,6 +1,7 @@
 {{ config(materialized = "table") }}
 
 SELECT
+    DISTINCT
     {{
         dbt_utils.generate_surrogate_key([
             'repo.id',

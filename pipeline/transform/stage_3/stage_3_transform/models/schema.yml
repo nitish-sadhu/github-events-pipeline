@@ -24,5 +24,5 @@ models:
   - name: int_dim_actor
     columns:
       - name: surrogate_id
-        data_test:
+        data_tests:
           - duplicate_id_check
