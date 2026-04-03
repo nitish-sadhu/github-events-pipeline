@@ -27,9 +27,6 @@ SELECT
     DATE(created_at) AS created_date
 FROM {{ ref("raw_gh_events") }}
 WHERE id IS NOT NULL
-{% if is_incremental() %}
-    AND created_at >= (
-        SELECT TIMESTAMP_SUB(MAX(created_at), INTERVAL 1 HOUR)
-        FROM {{ this }}
-    )
-{% endif %}
+---{% if is_incremental() %}
+---    AND CAST(created_at AS DATE) = CURRENT_DATE - 2
+---{% endif %}

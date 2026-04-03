@@ -1,0 +1,28 @@
+
+models:
+  - name: raw_gh_events
+    columns:
+      - name: created_at
+        data_tests:
+          - incremental_load_check
+      - name: surrogate_id
+        data_tests:
+          - duplicate_id_check
+
+  - name: int_dim_repo
+    columns:
+      - name: surrogate_id
+        data_tests:
+          - duplicate_id_check
+
+  - name: int_dim_org
+    columns:
+      - name: surrogate_id
+        data_tests:
+          - duplicate_id_check
+
+  - name: int_dim_actor
+    columns:
+      - name: surrogate_id
+        data_test:
+          - duplicate_id_check

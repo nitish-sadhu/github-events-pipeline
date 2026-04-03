@@ -91,6 +91,7 @@ def convert_to_parquet(client, date, hour, batch_size = 5000):
 if __name__ == "__main__":
 
     date, hour = get_args()
+    logger.info(f"date: {date}, hour: {hour}")
 
     client = create_storage_client()
 
