@@ -1,9 +1,7 @@
-from google.cloud import storage
 from utilities.utilities import create_storage_client, get_args, extract_from_date
 from params.params import RAW_JSON_BUCKET, PROCESSED_PARQUET_BUCKET
 
 import logging
-import argparse
 
 from utilities.utilities import get_args
 
@@ -40,7 +38,7 @@ def delete_blob(client, date, hour):
 if __name__ == "__main__":
 
     date, hour = get_args()
-    #print("start")
+
     client = create_storage_client()
 
     delete_blob(client, date, hour)
