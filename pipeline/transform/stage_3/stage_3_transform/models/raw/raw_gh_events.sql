@@ -7,10 +7,10 @@ SELECT * EXCEPT(rnum) FROM(
     WHERE id IS NOT NULL
 )
 WHERE rnum = 1
----{% if is_incremental() %}
----    AND CAST(created_at AS DATE) = CURRENT_DATE - 2
---- (SELECT TIMESTAMP_SUB(MAX(created_at), INTERVAL 1 HOUR) FROM {{ this }})
----{% endif %}
+{% if is_incremental() %}
+    AND CAST(created_at AS DATE) = CURRENT_DATE - 2
+ ---(SELECT TIMESTAMP_SUB(MAX(created_at), INTERVAL 1 HOUR) FROM {{ this }})
+{% endif %}
 
 
 

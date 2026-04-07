@@ -12,9 +12,8 @@ SELECT
     COUNT(*) AS event_counts
 FROM {{ ref("int_fct_gh_events") }}
 
----{% if is_incremental() %}
----WHERE created_date = CURRENT_DATE - 2
----    )
----{% endif %}
+{% if is_incremental() %}
+WHERE created_date = CURRENT_DATE - 2
+{% endif %}
 
 GROUP BY 1, 2, 3

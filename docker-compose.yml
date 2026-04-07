@@ -1,0 +1,54 @@
+services:
+
+  postgres:
+    image: postgres:13
+    environment:
+      POSTGRES_USER: airflow
+      POSTGRES_PASSWORD: airflow
+      POSTGRES_DB: airflow
+
+  airflow-scheduler:
+    image: airflow_custom_image
+    build: .
+    depends_on:
+      - postgres
+    environment:
+      - AIRFLOW_HOME=/opt/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__FERNET_KEY=your_key_here
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - GOOGLE_APPLICATION_CREDENTIALS=/home/airflow/.config/gcloud/application_default_credentials.json
+      - GOOGLE_CLOUD_PROJECT=github-events-analytics
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./:/opt/project
+      - ~/.config/gcloud:/home/airflow/.config/gcloud
+      - ~/.dbt:/home/airflow/.dbt
+    command: >
+      bash -c "
+        sleep 15 &&
+        airflow db migrate &&
+        airflow users create --username admin --firstname admin --lastname admin --role Admin --email admin@admin.com --password admin || true &&
+        airflow scheduler
+      "
+
+  airflow-webserver:
+    image: airflow_custom_image
+    build: .
+    depends_on:
+      - airflow-scheduler
+    environment:
+      - AIRFLOW_HOME=/opt/airflow
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__CORE__FERNET_KEY=your_key_here
+      - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+    volumes:
+      - ./airflow/dags:/opt/airflow/dags
+      - ./airflow/logs:/opt/airflow/logs
+      - ./:/opt/project
+    ports:
+      - "8080:8080"
+    command: airflow webserver

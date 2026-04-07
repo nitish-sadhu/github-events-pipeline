@@ -27,6 +27,6 @@ SELECT
     DATE(created_at) AS created_date
 FROM {{ ref("raw_gh_events") }}
 WHERE id IS NOT NULL
----{% if is_incremental() %}
----    AND CAST(created_at AS DATE) = CURRENT_DATE - 2
----{% endif %}
+{% if is_incremental() %}
+    AND CAST(created_at AS DATE) = CURRENT_DATE - 2
+{% endif %}
