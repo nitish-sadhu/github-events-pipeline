@@ -28,8 +28,10 @@ def delete_blob(client, date, hour):
         json_blob.delete()
         if not json_blob.exists():
             logger.info(f"___DELETED___: {json_blob} has been deleted.")
+
     elif json_blob.exists() and not parq_blob.exists():
         logger.warning(f"___WARNING___: {parq_blob} does not exist. create {parq_blob} from {json_blob} to delete {json_blob}")
+
     elif not json_blob.exists():
         logger.warning(f"___WARNING___: {json_blob} does not exist.")
 

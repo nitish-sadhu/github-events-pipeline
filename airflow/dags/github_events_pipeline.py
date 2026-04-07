@@ -9,6 +9,7 @@ sys.path.append("/opt/project")
 from pipeline.extract.extract_to_gcs import extract_to_gcs
 from pipeline.transform.stage_1.convert_to_parquet import convert_to_parquet
 from pipeline.transform.stage_2.create_ext_table import create_ext_table
+from pipeline.clean_up.clean_up_gcs import delete_blob
 
 
 from utilities.utilities import create_storage_client
@@ -17,7 +18,7 @@ from utilities.utilities import create_storage_client
 from datetime import datetime, timedelta
 
 
-def get_runtime_params(**kwargs):
+def get_runtime_params(**kwargs) -> tuple[str, int]:
     today = kwargs["execution_date"]
     hour = kwargs["execution_date"].hour
     datetime_stamp = today - timedelta(days=2)
@@ -25,17 +26,35 @@ def get_runtime_params(**kwargs):
 
     return str(date), int(hour)
 
-def extract_task(**kwargs):
+def extract_task(**kwargs) -> None:
     date, hour = get_runtime_params(**kwargs)
     extract_to_gcs(date, hour)
 
-def convert_task(**kwargs):
+    return None
+
+def convert_task(**kwargs) -> None:
     date, hour = get_runtime_params(**kwargs)
     client = create_storage_client()
     convert_to_parquet(client, date, hour)
 
-def create_ext_table_task(**kwargs):
+    return None
+
+def create_ext_table_task() -> None:
     create_ext_table()
+
+    return None
+
+
+def clean_up_gcs(**kwargs) -> None:
+    today = kwargs["execution_date"]
+    hour = kwargs["execution_date"].hour
+    clean_up_date = today - timedelta(days=30)
+
+    client = create_storage_client()
+
+    delete_blob(client, clean_up_date, hour)
+
+    return None
 
 
 with DAG(
@@ -75,4 +94,10 @@ with DAG(
         bash_command =  "/opt/project/pipeline/transform/stage_3/dbt_run.sh "
     )
 
-    task_1 >> task_2 >> task_3 >> task_4
+    task_5 = PythonOperator(
+        task_id = "cleanup_gcs_bucket",
+        python_callable = clean_up_gcs,
+        op_kwargs={}
+    )
+
+    task_1 >> task_2 >> task_3 >> task_4 >> task_5
