@@ -4,6 +4,7 @@ from utilities.utilities import create_storage_client
 from concurrent.futures import ThreadPoolExecutor
 import pandas as pd
 import importlib
+from pipeline.clean_up.clean_up_gcs import delete_blob
 from pipeline.extract.extract_to_gcs import extract_to_gcs
 import pipeline.transform.stage_1.convert_to_parquet as ctp
 
@@ -12,8 +13,8 @@ importlib.reload(ctp)
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-START_DATE = "2014-01-01"
-END_DATE = "2014-12-31"
+START_DATE = "2015-03-25"
+END_DATE = "2015-12-31"
 
 
 def backfill(date_range) -> None:
@@ -40,12 +41,15 @@ def backfill(date_range) -> None:
 
 def worker(task: list) -> None:
     date, hour = task
-    if True:
+    if False:
         #logger.info(f"__________{date}, {hour}___________")
         client = create_storage_client()
         ctp.convert_to_parquet(client, date, hour)
-    else:
+    elif True:
         extract_to_gcs(date, hour)
+    elif False:
+        client = create_storage_client()
+        delete_blob(client, date, hour)
 
     return None
 
