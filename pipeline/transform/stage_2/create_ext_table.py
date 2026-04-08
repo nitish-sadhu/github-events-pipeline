@@ -35,7 +35,8 @@ def create_ext_table() -> None:
 
     return None
 
-
+"""
 if __name__ == "__main__":
 
     create_ext_table()
+"""

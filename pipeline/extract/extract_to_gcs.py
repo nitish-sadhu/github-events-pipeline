@@ -54,13 +54,14 @@ def extract_to_gcs(date, hour):
 
     return None
 
+"""
 if __name__ == "__main__":
 
     date, hour = get_args()
     logger.info(f"date: {date}, hour:{hour}")
     extract_to_gcs(date, hour)
 
-    """
+
     start_date = "2011-02-12"
     end_date = "2011-02-28"
     date_range = pd.date_range(start_date, end_date)

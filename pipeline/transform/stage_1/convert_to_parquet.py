@@ -88,6 +88,8 @@ def convert_to_parquet(client, date, hour, batch_size = 5000):
 
     return None
 
+
+"""
 if __name__ == "__main__":
 
     date, hour = get_args()
@@ -97,7 +99,7 @@ if __name__ == "__main__":
 
     convert_to_parquet(client, date, hour)
 
-    """
+
     date_range = pd.date_range("2011-02-12", "2011-02-28", freq="D")
 
     for date in date_range:

@@ -35,6 +35,7 @@ def delete_blob(client, date, hour):
 
     return None
 
+"""
 if __name__ == "__main__":
 
     date, hour = get_args()
@@ -42,3 +43,4 @@ if __name__ == "__main__":
     client = create_storage_client()
 
     delete_blob(client, date, hour)
+"""
