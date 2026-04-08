@@ -11,18 +11,18 @@ models:
 
   - name: int_dim_repo
     columns:
-      - name: surrogate_id
+      - name: id
         data_tests:
           - duplicate_id_check
 
   - name: int_dim_org
     columns:
-      - name: surrogate_id
+      - name: id
         data_tests:
           - duplicate_id_check
 
   - name: int_dim_actor
     columns:
-      - name: surrogate_id
+      - name: id
         data_tests:
           - duplicate_id_check
