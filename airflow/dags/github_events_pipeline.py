@@ -59,9 +59,10 @@ def clean_up_gcs(**kwargs) -> None:
 
 with DAG(
     "github_events_pipeline",
-    start_date=datetime(2024, 1, 1),
+    start_date=datetime(2025, 12, 1),
     schedule_interval="0 * * * *",
-    catchup=False,
+    catchup=True,
+    max_active_runs = 5,
     default_args={
         "depends_on_past": False,
         "retries": 1,
