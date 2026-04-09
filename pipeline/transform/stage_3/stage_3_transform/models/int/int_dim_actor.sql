@@ -1,31 +1,5 @@
 {{ config(materialized = "incremental",
-            unique_key = "surrogate_id") }}
-
-/*
-WITH cte_actor AS (
-    SELECT
-        {{
-            dbt_utils.generate_surrogate_key([
-                'actor.id',
-                'actor.login',
-                'actor.display_login',
-                'actor.gravatar_id',
-                'actor.url',
-                'actor.avatar_url'
-        ])
-        }} as surrogate_id,
-        actor.id AS id,
-        actor.login AS login,
-        actor.display_login AS display_login,
-        actor.gravatar_id AS gravatar_id,
-        actor.url as url,
-        actor.avatar_url as avatar_url
-    FROM {{ ref("raw_gh_events") }}
-    WHERE actor.id IS NOT NULL
-)
-
-SELECT DISTINCT * FROM cte_actor
-*/
+            unique_key = "id") }}
 
 --- SELECT ONLY THE LATEST LOGIN, URL FOR THE ACTOR (TYPE - 1 TABLE)
 WITH cte_actor AS (
@@ -36,7 +10,15 @@ WITH cte_actor AS (
         ROW_NUMBER() OVER(PARTITION BY actor.id ORDER BY created_at DESC) AS rnum
     FROM {{ ref("raw_gh_events") }}
     WHERE actor.id IS NOT NULL
-        and actor.id <> 'None'
+        AND actor.id <> 'None'
+    {% if is_incremental() %}
+        AND year = EXTRACT(YEAR FROM CURRENT_DATE - 2)
+        AND month = EXTRACT(MONTH FROM CURRENT_DATE - 2)
+        AND day = EXTRACT(DAY FROM CURRENT_DATE - 2)
+        AND CAST(created_at AS DATE) = CURRENT_DATE - 2
+    {% else %}
+        AND year >= 2024
+    {% endif %}
 )
 
 SELECT

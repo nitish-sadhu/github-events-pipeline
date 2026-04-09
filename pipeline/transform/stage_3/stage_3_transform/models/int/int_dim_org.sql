@@ -33,6 +33,14 @@ WITH cte_org AS (
     FROM {{ ref("raw_gh_events") }}
     WHERE org.id IS NOT NULL
         AND org.id <> 'None'
+    {% if is_incremental() %}
+        AND year = EXTRACT(YEAR FROM CURRENT_DATE - 2)
+        AND month = EXTRACT(MONTH FROM CURRENT_DATE - 2)
+        AND day = EXTRACT(DAY FROM CURRENT_DATE - 2)
+        AND CAST(created_at AS DATE) = CURRENT_DATE - 2
+    {% else %}
+        AND year >= 2024
+    {% endif %}
 )
 
 SELECT
