@@ -1,4 +1,5 @@
-{{ config(materialized = "table") }}
+{{ config(materialized = "incremental",
+            unique_key = "") }}
 /*
 SELECT
     DISTINCT
@@ -30,6 +31,7 @@ WITH cte_repo AS (
         repo.url as url,
     FROM {{ ref("raw_gh_events") }}
     WHERE repo.id IS NOT NULL
+
 )
 
 SELECT DISTINCT * FROM cte_repo

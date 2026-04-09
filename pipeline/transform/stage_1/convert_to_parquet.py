@@ -31,8 +31,8 @@ def convert_to_parquet(client, date, hour, batch_size = 5000):
     writer = None
     batch = []
     year, month, day = extract_from_date(date)
-    src_blob_path = f"{year}/{month}/{day}/{hour}.json.gz"
-    tgt_blob_path = f"{year}/{month}/{day}/{hour}.parquet"
+    src_blob_path = f"year={year}/month={month}/day={day}/{hour}.json.gz"
+    tgt_blob_path = f"year={year}/month={month}/day={day}/{hour}.parquet"
 
     schema = get_pa_schema()
 
@@ -42,7 +42,7 @@ def convert_to_parquet(client, date, hour, batch_size = 5000):
     try:
         with src_blob.open("rb") as f:
             logger.info("==============================================================")
-            logger.info(f"___CONVERSION_STARTED___: {year}/{month}/{day}/{hour}.json.gz")
+            logger.info(f"___CONVERSION_STARTED___: year={year}/month={month}/day={day}/{hour}.json.gz")
             with gzip.open(f, "rt") as gz:
                 for line in gz:
                     record = json.loads(line)
@@ -70,10 +70,10 @@ def convert_to_parquet(client, date, hour, batch_size = 5000):
                     writer.write_table(table)
 
         if not src_blob.exists():
-            logger.info(f"___DOWNLOAD FAILED___: bucket: {PROCESSED_PARQUET_BUCKET} | file: /{year}/{month}/{day}/{hour}.parquet")
+            logger.info(f"___DOWNLOAD FAILED___: bucket: {PROCESSED_PARQUET_BUCKET} | file: /year={year}/month={month}/day={day}/{hour}.parquet")
             raise
 
-        logger.info(f"___CONVERSION_COMPLETED___: {year}/{month}/{day}/{hour}.parquet")
+        logger.info(f"___CONVERSION_COMPLETED___: year={year}/month={month}/day={day}/{hour}.parquet")
 
     except Exception as e:
         logger.error(f"___EXCEPTION___: {e}")
@@ -88,22 +88,3 @@ def convert_to_parquet(client, date, hour, batch_size = 5000):
 
     return None
 
-
-"""
-if __name__ == "__main__":
-
-    date, hour = get_args()
-    logger.info(f"date: {date}, hour: {hour}")
-
-    client = create_storage_client()
-
-    convert_to_parquet(client, date, hour)
-
-
-    date_range = pd.date_range("2011-02-12", "2011-02-28", freq="D")
-
-    for date in date_range:
-        formatted_date = str(date)
-        for hour in range(24):
-            convert_to_parquet(client, formatted_date, hour)
-    """

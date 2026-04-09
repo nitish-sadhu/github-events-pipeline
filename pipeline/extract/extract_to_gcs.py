@@ -25,7 +25,7 @@ def extract_to_gcs(date, hour):
 
     bucket = storage_client.get_bucket(RAW_JSON_BUCKET)
 
-    blob_path = f"{year}/{month}/{day}/{hour}.json.gz"
+    blob_path = f"year={year}/month={month}/day={day}/{hour}.json.gz"
     blob = bucket.blob(blob_path)
 
     url = f"https://data.gharchive.org/{date}-{hour}.json.gz"
@@ -47,7 +47,7 @@ def extract_to_gcs(date, hour):
                     pbar.update(len(chunk))
 
     if not blob.exists():
-        logger.error(f"___DOWNLOAD FAILED___: bucket: {RAW_JSON_BUCKET} | file: /{year}/{month}/{day}/{hour}.json.gz")
+        logger.error(f"___DOWNLOAD FAILED___: bucket: {RAW_JSON_BUCKET} | file: /year={year}/month={month}/day={day}/{hour}.json.gz")
         raise
 
     logger.info(f"___UPLOAD_COMPLETE___: {date}-{hour}.json.gz___")

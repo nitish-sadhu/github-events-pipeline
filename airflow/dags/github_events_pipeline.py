@@ -61,8 +61,8 @@ with DAG(
     "github_events_pipeline",
     start_date=datetime(2025, 12, 1),
     schedule_interval="0 * * * *",
-    catchup=True,
-    max_active_runs = 5,
+    catchup=False,
+    max_active_runs = 1,
     default_args={
         "depends_on_past": False,
         "retries": 1,

@@ -15,9 +15,16 @@ def create_ext_table() -> None:
 
     query = f"""
             CREATE EXTERNAL TABLE IF NOT EXISTS `{table_id}`
+            WITH PARTITION COLUMNS (
+                year INT64,
+                month INT64,
+                day INT64
+            )
             OPTIONS (
                 FORMAT = 'PARQUET',
-                URIS = ['gs://{PROCESSED_PARQUET_BUCKET}/*.parquet']
+                URIS = ['gs://{PROCESSED_PARQUET_BUCKET}/*.parquet'],
+                hive_partition_uri_prefix='gs://sadpro-gea-events-parq-raw/',
+                require_hive_partition_filter=true
             )
     """
 
@@ -35,8 +42,7 @@ def create_ext_table() -> None:
 
     return None
 
-"""
+
 if __name__ == "__main__":
 
     create_ext_table()
-"""
