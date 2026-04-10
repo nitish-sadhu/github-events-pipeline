@@ -17,6 +17,9 @@ The pipeline is orchestrated using Apache Airflow running in Docker containers, 
 <b>Architecture Diagram:</b>
 ![Architectrue Diagram](Architecture.png)
 
+## Dashboard
+- [View Dashboard](https://lookerstudio.google.com/reporting/15561452-8a42-4624-a8de-7f4dda32ae3b)
+
 ## Tech Stack
 - Programming: Python
 - Cloud Platform: Google Cloud Platform
