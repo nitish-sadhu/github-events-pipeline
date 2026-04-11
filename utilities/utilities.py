@@ -7,6 +7,8 @@ import json
 import hashlib
 import logging
 import argparse
+import pyarrow as pa
+import pyarrow.parquet as pq
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -162,3 +164,18 @@ def get_pa_schema():
 
     return schema
 
+
+def get_blob(client, bucket, blob_path):
+    if not client.lookup_bucket(bucket):
+        create_bucket(client, bucket)
+
+    bucket = client.get_bucket(bucket)
+    blob = bucket.blob(blob_path)
+
+    return blob
+
+
+def get_parquet_writer(file, schema):
+    writer = pq.ParquetWriter(file, schema=schema, compression="snappy")
+
+    return writer
