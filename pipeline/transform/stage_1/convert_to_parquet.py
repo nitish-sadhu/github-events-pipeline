@@ -1,5 +1,5 @@
-from utilities.utilities import extract_from_date, get_pa_schema, normalize_record, create_bucket, get_blob, get_parquet_writer
-from params.params import RAW_JSON_BUCKET, PROCESSED_PARQUET_BUCKET
+from utilities.utilities import get_blob, get_parquet_writer, get_pa_schema, create_bucket, extract_from_date, normalize_record
+from params.params import PROCESSED_PARQUET_BUCKET, RAW_JSON_BUCKET
 
 import gzip
 import json
