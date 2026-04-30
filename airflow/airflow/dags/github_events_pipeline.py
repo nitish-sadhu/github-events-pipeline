@@ -93,7 +93,7 @@ with DAG(
     )
 
     task_2 = CloudRunExecuteJobOperator(
-        task_id="convert_to_parquet",
+        task_id="parquet_ingestion",
         job_name="job-convert-to-parquet",
         project_id="github-events-analysis",
         region="asia-south1",

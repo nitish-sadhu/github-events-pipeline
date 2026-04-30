@@ -9,7 +9,7 @@ import argparse
 import pyarrow as pa
 import pyarrow.parquet as pq
 
-from params.params import PROJECT
+from params import PROJECT
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

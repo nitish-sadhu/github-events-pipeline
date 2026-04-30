@@ -1,9 +1,7 @@
-from utilities.utilities import create_storage_client, get_args, extract_from_date
-from params.params import RAW_JSON_BUCKET, PROCESSED_PARQUET_BUCKET
+from utilities import extract_from_date
+from params import RAW_JSON_BUCKET, PROCESSED_PARQUET_BUCKET
 
 import logging
-
-from utilities.utilities import get_args
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)

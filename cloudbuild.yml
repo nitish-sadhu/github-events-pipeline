@@ -1,0 +1,5 @@
+steps:
+- name: 'gcr.io/cloud-builders/docker'
+  args: ['build', '-t', 'gcr.io/$PROJECT_ID/job_convert_to_parquet', '-f', 'cloudrun_jobs/convert_job/Dockerfile', '.']
+images:
+- 'gcr.io/$PROJECT_ID/job_convert_to_parquet'
