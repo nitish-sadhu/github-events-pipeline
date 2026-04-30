@@ -16,16 +16,14 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__CORE__FERNET_KEY=your_key_here
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
       - GOOGLE_APPLICATION_CREDENTIALS=/home/airflow/.config/gcloud/application_default_credentials.json
-      - GOOGLE_CLOUD_PROJECT=github-events-analytics
+      - GOOGLE_CLOUD_PROJECT=github-events-analysis
+      - AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT=google-cloud-platform://?project=github-events-analysis
     volumes:
+      - ./scripts:/opt/airflow/scripts
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
-      - ./:/opt/project
-      - ~/.config/gcloud:/home/airflow/.config/gcloud
-      - ~/.dbt:/home/airflow/.dbt
     command: >
       bash -c "
         sleep 15 &&
@@ -43,12 +41,13 @@ services:
       - AIRFLOW_HOME=/opt/airflow
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
-      - AIRFLOW__CORE__FERNET_KEY=your_key_here
       - AIRFLOW__DATABASE__SQL_ALCHEMY_CONN=postgresql+psycopg2://airflow:airflow@postgres/airflow
+      - AIRFLOW_CONN_GOOGLE_CLOUD_DEFAULT=google-cloud-platform://?project=github-events-analysis
     volumes:
+      - ./scripts:/opt/scripts
       - ./airflow/dags:/opt/airflow/dags
       - ./airflow/logs:/opt/airflow/logs
-      - ./:/opt/project
     ports:
       - "8080:8080"
-    command: airflow webserver
+    command: > 
+      bash -c "sleep 20 && airflow webserver && sleep 20"

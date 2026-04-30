@@ -1,5 +1,5 @@
 {{ config(materialized = "incremental",
-            unique_key = "surrogate_id") }}
+            unique_key = "id") }}
 /*
 WITH cte_org AS (
     SELECT
@@ -53,8 +53,7 @@ SELECT
     }} AS surrogate_id,
     id,
     login,
-    url,
-    rnum
+    url
 FROM cte_org
 WHERE rnum = 1
 
