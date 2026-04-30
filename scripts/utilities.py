@@ -1,6 +1,5 @@
 #!/Users/krishnasadhu/github-events-analytics/.venv/bin/python
 import pandas as pd
-import pyarrow as pa
 from google.cloud import storage, bigquery
 from datetime import datetime
 import json
@@ -9,6 +8,8 @@ import logging
 import argparse
 import pyarrow as pa
 import pyarrow.parquet as pq
+
+from params import PROJECT
 
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
@@ -40,12 +41,11 @@ def extract_from_date(date: str):
 
 
 def create_bigquery_client():
-    return bigquery.Client(project="github-events-analytics")
+    return bigquery.Client(project=PROJECT)
 
 def create_storage_client():
-    #logger.info("___CREATING_STORAGE_CLIENT___")
-    client =  storage.Client(project="github-events-analytics")
-    #logger.info(f"___{client}___")
+    client =  storage.Client(project=PROJECT)
+
     return client
 
 def create_surrogate_id(record):

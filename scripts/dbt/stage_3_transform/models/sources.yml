@@ -2,7 +2,7 @@ version: 2
 
 sources:
   - name: gh_events
-    database: github-events-analytics # gcp project
+    database: github-events-analysis # gcp project
     schema: gh_events
     tables:
       - name: raw_gh_events_ext

@@ -1,8 +1,7 @@
-from params.params import RAW_JSON_BUCKET
-from utilities.utilities import create_storage_client, extract_from_date, create_bucket, get_args
+from params import RAW_JSON_BUCKET
+from utilities import create_storage_client, extract_from_date, create_bucket
 
 import logging
-import pandas as pd
 import requests
 from tqdm import tqdm
 
