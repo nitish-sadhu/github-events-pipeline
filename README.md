@@ -1,24 +1,122 @@
 # GitHub Events data pipeline
 
-## Overview
-This project implements an end-to-end ELT data pipeline that processes GitHub Events data and transform it into analytics-ready datasets using modern data engineering tools.
 
-Raw JSON data is ingested using Python, optimised into Parquet (columnar format) for efficient storage, and loaded into BigQuery. Transformations are performed using dbt to build a dimensional data model (fact and dimension tables) fro downstream analytics and reporting. 
+## Context
+Github genereates large volumes of semi-structured events data. But the data is not immediately ready for analysis. Raw JSON data is inefficeint to query, lacks structure, and makes it difficult to derive meaningful insights.
+There is a need for a scalable and cost efficient pipeline that can ingest, transform and organise this data into a structured format that supports reliable analytics and reporting.
 
-The pipeline is designed with scalability and cost-efficieny in mind, leveraging partitioning and cloud-native processing.
+
+## Approach
+To transform raw GitHub Events data into reliable, analytics-ready datasets, the pipeline is designed around three key principles:
+### Separation of Concerns
+The pipeline is divided into distinct layers — raw ingestion, optimized storage, and transformation. This ensures that each stage is independently manageable and reduces the risk of downstream failures due to upstream changes.
+### Performance & Cost Optimization
+Instead of querying raw JSON directly, the data is converted into a columnar format (Parquet) and later partitioned in BigQuery. This minimizes data scanned during queries and reduces storage and compute costs.
+### Schema Stability & Scalability
+Given that GitHub Events data can evolve over time, schema handling is enforced during ingestion to prevent pipeline breakage. The system is designed to scale with increasing data volume while maintaining consistency.
+### ELT over ETL
+Transformations are performed within BigQuery using dbt, leveraging the warehouse’s processing power rather than moving data across systems. This simplifies the architecture and improves scalability.
+### Data Quality & Reliability
+Basic data quality checks, such as duplicate detection and incremental load validation, are incorporated to ensure consistency and correctness of the transformed data.
+
 
 ## Architecture
+The pipeline follows a layered architecture, starting from raw data ingestion in GCS, followed by optimized storage in Parquet format, loading into BigQuery, and transformation using dbt for analytics. Orchestration is handled using Apache Airflow running in Docker containers, enabling scheduling, dependency management, and backfilling of workflows.
+
 Ingestion (Python) -> Storage (GCS - Parquet) -> Data Warehouse (BigQuery - External Tables) -> Transformation (dbt - staging, fact, dimension, marts) -> BI Layer (Looker Studio).
 
-Orchestration: Apache Airflow (in Docker)
-
-The pipeline is orchestrated using Apache Airflow running in Docker containers, enabling scheduling, dependency management, and backfilling of workflows.
+### Ingestion layer
+Handles extraction of raw GitHub Events data and stores it in GCS
+### Storage layer
+Raw JSON data is converted into Parquet format and stored in GCS using Hive-style partitioning (e.g., year=YYYY/month=MM/day=DD). This enables efficient partition pruning when querying via BigQuery external tables.
+### Serving layer (BigQuery)
+External tables provide flexible access to raw data, while partitioned native tables optimize query performance
+### Transformation layer (dbt)
+Builds a dimensional model (fact and dimension tables) and enforces data quality checks
+### Visualisation layer
+Looker studio dashboard enables reporting and insights.
 
 <b>Architecture Diagram:</b>
 ![Architectrue Diagram](Architecture.png)
 
 ## Dashboard
 - [View Dashboard](https://lookerstudio.google.com/reporting/15561452-8a42-4624-a8de-7f4dda32ae3b)
+
+## Data Flow
+### Ingestion
+Raw GitHub Events data is downloaded as JSON files and stored in a Google Cloud Storage (GCS) bucket, serving as the initial landing layer.
+
+## Storage & Optimisation
+The JSON data is converted into Parquet format and stored in a separate GCS bucket for improved storage efficiency and query performance.
+During conversion, a schema is explicitly defined to ensure consistency even if the source data evolves over time.
+The Parquet data is organized using Hive-style partitioning (e.g., year=YYYY/month=MM/day=DD), enabling efficient partition pruning and reducing query costs.
+To control storage costs, raw JSON files are automatically deleted after 30 days.
+
+## Serving Layer (BigQuery)
+A BigQuery external table is created over the Parquet files in GCS, providing a flexible staging layer.
+From this, a native BigQuery table is created as an exact copy and partitioned by date. This improves query performance and reduces costs by limiting the amount of data scanned.
+
+## Transformation (dbt)
+Using dbt, the data from the native BigQuery table is transformed into a dimensional model consisting of fact and dimension tables (star schema).
+Data quality is enforced through:
+- Tests to prevent duplicate records
+- Checks to ensure new data is correctly loaded (incremental validation)
+
+## Analytics & Visualisation
+The final fact and dimension tables are used to build dashboards in Looker Studio for reporting and insights.
+
+## Data Model
+### Overview
+The transformed data is modelled using a dimensional (star schema) approach in dbt, enabling efficient querying and simplified analytics
+
+#### Fact table - int_fct_gh_events
+- Central table containing GitHub events
+- Stores high-volume, time-based data
+- Includes the following fields
+  - surrogate_id,
+  - id,
+  - type,
+  - actor_id,
+  - repo_id,
+  - org_id,
+  - public,
+  - created_at,
+  - created_date
+
+#### Dim table - int_dim_repo
+- Dimension table containing the information of the GitHub Repos
+- Includes the following fields
+  - surrogate_id
+  - id
+  - name
+  - url
+    
+#### Dim table - int_dim_org
+- Dimension table containing the information of the GitHub Organisations
+- Includes the following fields
+  - surrogate_id
+  - id
+  - login
+  - url
+
+#### Dim table - int_dim_actor
+- Dimension table containing the information of the actors in GitHub
+- Includes the following fields
+  - surrogate_id
+  - id
+  - login
+  - url
+
+### Why star schema?
+- Reduces query complexity
+- Improves performance for analytical workloads
+- Works well with BI tools like looker studio
+
+### dbt features used
+- Incremental models --> process only new data
+- Tests --> Ensure data quality (e.g., no duplicates, not null)
+- Modular modesl --> easier maintenance and scalability
+- Surrogate keys are used to uniquely identify dimension records.
 
 ## Tech Stack
 - Programming: Python
@@ -29,37 +127,6 @@ The pipeline is orchestrated using Apache Airflow running in Docker containers, 
 - Orchestration: Apache Airflow (Dockerised)
 - Containerisation: Docker
 - Data Modelling: Star schema (Fact & Dimension Tables)
-
-## Data Flow
-1. <b>Data Ingestion:</b>
-- Extract GitHub Events data in JSON format using python scripts.
-
-2. <b>Data Transformation (Stage 1 - File Optimisation):</b>
-- Convert raw JSON data into Parquet format to improve storage efficiency and query performance.
-- Store processed files in GCS using <b>Hive-style partitioning</b>(eg: year=YYYY/month=MM/day=DD).
-- Enables efficient partition pruning and reduces query cost in BigQuery.
-
-3. <b>Data Warehousing:</b>
-- Created external tables in BigQuery on top of Parquet files stored in GCS.
-- Enable querying of large datasets without data duplication.
-
-4. <b>Data Transformation:</b>
-- Implemented <b>dbt</b> to transform raw data into structured datasets:
-  - Staging layer (cleaned raw data)
-  - Fact table (events)
-  - Dimension tables (users, repositories, etc.,)
-
-5. <b>Data modelling:</b>
-- Implement star schema to support efficient analytical queries and reporting.
-
-6. <b>Orchestration:</b>
-- Implemented Apache Airflow in docker containers to orchestrate the pipeline:
-  - Schedule workflows
-  - Manage task dependencies
-  - Support backfilling of historical data
- 
-7. <b>Data Visualisation:</b>
-- Build dashboards in <b>Looker Studio</b> using curated mart tables. 
 
 ## key features
 - Designed and implemented end-to-end <b>ELT data pipeline</b> for processing large-scale GitHub events data
