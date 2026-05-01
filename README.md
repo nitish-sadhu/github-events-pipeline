@@ -108,7 +108,15 @@ The transformed data is modelled using a dimensional (star schema) approach in d
   - url
 
 ### Why star schema?
+- Reduces query complexity
+- Improves performance for analytical workloads
+- Works well with BI tools like looker studio
 
+### dbt features used
+- Incremental models --> process only new data
+- Tests --> Ensure data quality (e.g., no duplicates, not null)
+- Modular modesl --> easier maintenance and scalability
+- Surrogate keys are used to uniquely identify dimension records.
 
 ## Tech Stack
 - Programming: Python
@@ -119,37 +127,6 @@ The transformed data is modelled using a dimensional (star schema) approach in d
 - Orchestration: Apache Airflow (Dockerised)
 - Containerisation: Docker
 - Data Modelling: Star schema (Fact & Dimension Tables)
-
-## Data Flow
-1. <b>Data Ingestion:</b>
-- Extract GitHub Events data in JSON format using python scripts.
-
-2. <b>Data Transformation (Stage 1 - File Optimisation):</b>
-- Convert raw JSON data into Parquet format to improve storage efficiency and query performance.
-- Store processed files in GCS using <b>Hive-style partitioning</b>(eg: year=YYYY/month=MM/day=DD).
-- Enables efficient partition pruning and reduces query cost in BigQuery.
-
-3. <b>Data Warehousing:</b>
-- Created external tables in BigQuery on top of Parquet files stored in GCS.
-- Enable querying of large datasets without data duplication.
-
-4. <b>Data Transformation:</b>
-- Implemented <b>dbt</b> to transform raw data into structured datasets:
-  - Staging layer (cleaned raw data)
-  - Fact table (events)
-  - Dimension tables (users, repositories, etc.,)
-
-5. <b>Data modelling:</b>
-- Implement star schema to support efficient analytical queries and reporting.
-
-6. <b>Orchestration:</b>
-- Implemented Apache Airflow in docker containers to orchestrate the pipeline:
-  - Schedule workflows
-  - Manage task dependencies
-  - Support backfilling of historical data
- 
-7. <b>Data Visualisation:</b>
-- Build dashboards in <b>Looker Studio</b> using curated mart tables. 
 
 ## key features
 - Designed and implemented end-to-end <b>ELT data pipeline</b> for processing large-scale GitHub events data
