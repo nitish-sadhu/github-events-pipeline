@@ -141,29 +141,67 @@ The transformed data is modelled using a dimensional (star schema) approach in d
 
 ## How to Run
 1. <b>Prerequisites</b>
-- Python installed
-- Google Cloud account with BigQuery and GCS access
-- gcloud CLI installed and authenticated
-- dbt installed and configured
-- Docker installed (for Airflow)
+- Google cloud account
+- gcloud setup on local
+  
 
 2. <b>Authentication</b>
 - Run the following command to authenticate gcloud CLI.
 
         `gcloud auth application-default login`
 
-3. <b>Run the pipeline</b>
-- Start the containers with airflow.
+3. <b>Setting up the infrastructure</b>
+  a. <b>Creating a VM</b>
+  - Create a VM on GCP from the console. We need the VM to run airflow.
+  - The following configuration is used during development and the pipeline should run well in the configuration. However you are welcome to use the configuration you please.
+    - Machine type: E2
+    - Location: asia-south1-c (use the one closest to you)
+    - API and identity management
+      - Cloud API access scopes: Allow full access to all Cloud APIs (need this for the programs running on your VM to access cloud run)
+  - During the creation of the VM give it a network tag.
 
-          `docker compose up -d`
+  b. <b>Creating firewall rules</b>
+  - A firewall rule needs to be created to access airflow webserver running on the VM from your local machine
+  - To created a firewall rule, on GCP console, go to VPC networks --> firewall.
+  - Click on create a firewall rule
+  - Select the following
+    - Direction of traffic: Ingress
+    - Protocols and ports: Specified protocols and ports
+      - Select <b>TCP</b> and in the ports text box enter <b>8080</b>. This is the port on which airflow webserver opens up.
+    - Targets: add your VM's network tag. This is apply the firewall rule tou your VM.
 
-- Access Airflow UI at:
+  c. <b>Copy the airflow scripts to VM</b>
+  - Run the following command from the directory that hosts the airflow directory to copy the scripts necessary to run airflow on the VM
+    - `gcloud compute scp --recurse ./airflow ${INSTANCE_NAME}:~/ --zone=${ZONE_NAME}`
+   
+  d. <b>Create cloud run jobs</b>
+  - We will be running our scripts on cloud run.
+  - To create a cloud run job, follow the steps below.
+    - `gcloud builds submit --config cloudbuild.yaml .`
+    - Run the command above from the directory in which cloudbuild.yaml is present, before running this update the cloudbuld.yaml file with the name of the cloudrun job and the path to the Dockerfile you want to deploy in cloud run.
 
-          http://localhost:8080
+  e. <b>Starting the pipeline</b>
+  - Once the VM and the cloudrun jobs are created, run the following commands to install docker on your VM
+    - `gcloud compute ssh <your-vm-name>`
+    - `sudo apt update`
+    - `sudo apt upgrade -y`
+    - `sudo apt install docker.io -y`
+    - `sudo systemctl start docker`
+    - `sudo systemctl enable docker`
+   
+  - Once docker is up and running, run the following command to start airflow.
+    - `docker compose up`
 
-<b>Notes:</b>
-- Ensure GCS bucket and BigQuery dataset are created before running.
-- Configure profiles.yml for dbt with BigQuery credentials.
+  - To check if the containers are running, run the following
+    - `docker compose ps`
+    - There should be three containers - postgres, airflow-scheduler, airflow-webserver up and running.
+   
+  - Once the containers start in the browser on your local machine search for the following to access the webserver
+    - http://EXTERNAL_IP:8080
+  - login and you can see your pipeline running.
+
+<b>NOTE: THE SCHEDULE IS DISABLE BY DEFAULT i.e., THE PIPELINE WILL NOT RUN ON SCHEDULE. THIS IS DONE TO PREVENT RUNAWAY COSTS. YOU CAN ENABLE IT BY CHANGING THE VARIABLE "schedule" AND UNCOMMENTING "schedule_interval" AND DEFINING YOUR OWN CRON EXPRESSION(THE PIPELINE IS BUILD TO RUN ONCE AN HOUR).</b> 
+
 
 ## Challenges Faced & Learnings
 1. <b>High BigQuery costs due to full table scans</b>
